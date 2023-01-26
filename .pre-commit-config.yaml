@@ -13,5 +13,3 @@ repos:
     rev: 'v0.0.235'
     hooks:
       - id: ruff
-        # Respect `exclude` and `extend-exclude` settings.
-        args: [ "--force-exclude" ]

@@ -39,21 +39,12 @@ def generate_git_command(command: str):
         template=example_formatter_template,
     )
 
-    # Finally, we create the `FewShotPromptTemplate` object.
     few_shot_prompt = FewShotPromptTemplate(
-        # These are the examples we want to insert into the prompt.
         examples=examples,
-        # This is how we want to format the examples when we insert them into the prompt.
         example_prompt=example_prompt,
-        # The prefix is some text that goes before the examples in the prompt.
-        # Usually, this consists of intructions.
         prefix="Translate the following human-readable instructions into git commands.",
-        # The suffix is some text that goes after the examples in the prompt.
-        # Usually, this is where the user input will go
         suffix="Human-readable instruction: {input}\nGit command:",
-        # The input variables are the variables that the overall prompt expects.
         input_variables=["input"],
-        # The example_separator is the string we will use to join the prefix, examples, and suffix together with.
         example_separator="\n\n",
     )
 
@@ -77,7 +68,8 @@ def explain_git_command(llm, git_command: str):
     # explain every argument line by line
     # Second example:
     # "count how many times test.json was modified in the last week"
-    # Generated git command:  git log --since=1.week --name-only --oneline -- test.json | grep test.json | wc -l
+    # Generated git command:  git log --since=1.week --name-only --oneline -- test.json
+    # | grep test.json | wc -l
     print(f"Explaining command: {git_command}")
     explain_prompt_template = """
     Explain in detail what the following git command does:
