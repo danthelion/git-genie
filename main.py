@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 import dotenv
 import typer
 from langchain import FewShotPromptTemplate
@@ -8,28 +11,12 @@ dotenv.load_dotenv()
 
 # app = typer.Typer()
 
+EXAMPLES = Path("examples")
+LLM = OpenAI(temperature=0, model_name="text-davinci-003")
+
 
 # @app.command
 def generate_git_command(command: str):
-    examples = [
-        {
-            "instruction": "Revert last 3 commits",
-            "command": "git reset --hard HEAD~3",
-        },
-        {"instruction": "list all branches", "command": "git branch"},
-        {
-            "instruction": "Create a new branch called 'feature'",
-            "command": "git checkout -b feature",
-        },
-        {
-            "instruction": "Switch to the 'feature' branch",
-            "command": "git checkout feature",
-        },
-        {
-            "instruction": "Create a new branch called 'feature' and switch to it",
-            "command": "git checkout -b feature",
-        },
-    ]
     example_formatter_template = """
     Instructon: {instruction}
     Command: {command}\n
@@ -40,7 +27,7 @@ def generate_git_command(command: str):
     )
 
     few_shot_prompt = FewShotPromptTemplate(
-        examples=examples,
+        examples=json.load((EXAMPLES / "generate_git_command_examples.json").open()),
         example_prompt=example_prompt,
         prefix="Translate the following human-readable instructions into git commands.",
         suffix="Human-readable instruction: {input}\nGit command:",
@@ -48,13 +35,12 @@ def generate_git_command(command: str):
         example_separator="\n\n",
     )
 
-    llm = OpenAI(temperature=0, model_name="text-davinci-003")
-    git_command_translator = LLMChain(llm=llm, prompt=few_shot_prompt)
+    git_command_translator = LLMChain(llm=LLM, prompt=few_shot_prompt)
     git_command = git_command_translator(command)["text"]
     print(f"Generated git command: {git_command}")
     action = typer.prompt("(E)xplain or R(run)?")
     if action == "E":
-        explain_git_command(llm, git_command)
+        explain_git_command(git_command)
         action = typer.prompt("(R)un?")
         if action == "R":
             run_git_command(git_command=git_command)
@@ -62,25 +48,28 @@ def generate_git_command(command: str):
         run_git_command(git_command=git_command)
 
 
-def explain_git_command(llm, git_command: str):
-    # TODO add few shot prompt with one by one explanation
-    # git log --graph --decorate --oneline --all --color --7
-    # explain every argument line by line
-    # Second example:
-    # "count how many times test.json was modified in the last week"
-    # Generated git command:  git log --since=1.week --name-only --oneline -- test.json
-    # | grep test.json | wc -l
-    print(f"Explaining command: {git_command}")
-    explain_prompt_template = """
-    Explain in detail what the following git command does:
-    {git_command}
+def explain_git_command(git_command: str):
+    explain_example_formatter_template = """
+    Command: {command}
+    Explanation: {explanation}\n
     """
-    prompt = PromptTemplate(
-        input_variables=["git_command"], template=explain_prompt_template
+    explain_example_prompt = PromptTemplate(
+        input_variables=["command", "explanation"],
+        template=explain_example_formatter_template,
     )
-    explaner = LLMChain(llm=llm, prompt=prompt)
-    explanation = explaner(git_command)["text"]
-    print(f"Command explanation: {explanation}")
+
+    explain_few_shot_prompt = FewShotPromptTemplate(
+        examples=json.load((EXAMPLES / "explain_git_command_examples.json").open()),
+        example_prompt=explain_example_prompt,
+        prefix="Explain the followng git command.",
+        suffix="Git command: {input}\nExplanation:",
+        input_variables=["input"],
+        example_separator="\n\n",
+    )
+
+    git_command_translator = LLMChain(llm=LLM, prompt=explain_few_shot_prompt)
+    explanation = git_command_translator(git_command)["text"]
+    print(f"Generated explanation: {explanation}")
 
 
 def run_git_command(git_command: str):

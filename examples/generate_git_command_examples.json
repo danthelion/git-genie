@@ -1,0 +1,22 @@
+[
+  {
+    "instruction": "Revert last 3 commits",
+    "command": "git reset --hard HEAD~3"
+  },
+  {
+    "instruction": "list all branches",
+    "command": "git branch"
+  },
+  {
+    "instruction": "Create a new branch called 'feature'",
+    "command": "git checkout -b feature"
+  },
+  {
+    "instruction": "Switch to the 'feature' branch",
+    "command": "git checkout feature"
+  },
+  {
+    "instruction": "Create a new branch called 'feature' and switch to it",
+    "command": "git checkout -b feature"
+  }
+]
