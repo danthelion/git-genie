@@ -69,6 +69,11 @@ app = typer.Typer()
 
 def generate_git_command(instruction: str):
     example_formatter_template = """
+    You are an interpreter for the command line version control tool git. Translate the following human-readable
+    instructions into git commands. You can use the following examples as a reference. Only return commands that are
+    syntactically correct and produce the desired effect. If you don't know how to translate an instruction, return
+    'git help'.
+
     Instructon: {instruction}
     Command: {command}\n
     """
@@ -130,9 +135,9 @@ def execute_git_command(git_command: str):
     result = subprocess.run(git_command, shell=True, capture_output=True, text=True)
     print(f"[{COMMS_COLOR}]Output:[/{COMMS_COLOR}]")
     if result.stdout:
-        print(result.stdout)
+        typer.echo(result.stdout)
     if result.stderr:
-        print(result.stderr)
+        typer.echo(result.stderr)
     exit(0)
 
 
