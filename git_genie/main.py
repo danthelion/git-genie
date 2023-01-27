@@ -1,12 +1,11 @@
-import logging
 import subprocess
 
 import typer
 from langchain import FewShotPromptTemplate
 from langchain import PromptTemplate, OpenAI, LLMChain
+from rich import print
 
 LLM = OpenAI(temperature=0, model_name="text-davinci-003")
-LOGGER = logging.getLogger(__name__)
 
 GENERATE_GIT_COMMAND_EXAMPLES = [
     {"instruction": "Revert last 3 commits", "command": "git reset --hard HEAD~3"},
@@ -61,8 +60,6 @@ EXPLAIN_GIT_COMMAND_EXAMPLES = [
     },
 ]
 
-logging.basicConfig(level=logging.INFO, format="%(message)s")
-
 app = typer.Typer()
 
 
@@ -88,7 +85,7 @@ def generate_git_command(command: str):
 
     git_command_translator = LLMChain(llm=LLM, prompt=few_shot_prompt)
     git_command = git_command_translator(command)["text"]
-    typer.echo(f"Generated git command: {git_command}")
+    print(f"Generated git command: {git_command}")
     action = typer.prompt("(E)xplain or R(run)?")
     if action == "E":
         explain_git_command(git_command)
@@ -120,11 +117,11 @@ def explain_git_command(git_command: str):
 
     git_command_translator = LLMChain(llm=LLM, prompt=explain_few_shot_prompt)
     explanation = git_command_translator(git_command)["text"]
-    typer.echo(f"Explanation\n{explanation}")
+    print(f"Explanation\n{explanation}")
 
 
 def run_git_command(git_command: str):
-    typer.echo(f"Running command: {git_command}")
+    print(f"Running command: {git_command}")
     subprocess.run(git_command, shell=True)
 
 
