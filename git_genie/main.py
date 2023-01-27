@@ -7,6 +7,10 @@ from rich import print
 
 LLM = OpenAI(temperature=0, model_name="text-davinci-003")
 
+COMMS_COLOR = "yellow"
+COMMAND_COLOR = "bold red"
+EXPLANATION_COLOR = "bold green"
+
 GENERATE_GIT_COMMAND_EXAMPLES = [
     {"instruction": "Revert last 3 commits", "command": "git reset --hard HEAD~3"},
     {"instruction": "list all branches", "command": "git branch"},
@@ -63,8 +67,7 @@ EXPLAIN_GIT_COMMAND_EXAMPLES = [
 app = typer.Typer()
 
 
-@app.command()
-def generate_git_command(command: str):
+def generate_git_command(instruction: str):
     example_formatter_template = """
     Instructon: {instruction}
     Command: {command}\n
@@ -84,16 +87,11 @@ def generate_git_command(command: str):
     )
 
     git_command_translator = LLMChain(llm=LLM, prompt=few_shot_prompt)
-    git_command = git_command_translator(command)["text"]
-    print(f"Generated git command: {git_command}")
-    action = typer.prompt("(E)xplain or R(run)?")
-    if action == "E":
-        explain_git_command(git_command)
-        action = typer.prompt("(R)un?")
-        if action == "R":
-            run_git_command(git_command=git_command)
-    elif action == "R":
-        run_git_command(git_command=git_command)
+    git_command = git_command_translator(instruction)["text"]
+    print(
+        f"[{COMMS_COLOR}]Generated git command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]"
+    )
+    return git_command
 
 
 def explain_git_command(git_command: str):
@@ -117,12 +115,61 @@ def explain_git_command(git_command: str):
 
     git_command_translator = LLMChain(llm=LLM, prompt=explain_few_shot_prompt)
     explanation = git_command_translator(git_command)["text"]
-    print(f"Explanation\n{explanation}")
+    print(
+        f"[{COMMS_COLOR}]Explanation[/{COMMS_COLOR}]\n[{EXPLANATION_COLOR}]{explanation}[/{EXPLANATION_COLOR}]"
+    )
+    return explanation
 
 
 def run_git_command(git_command: str):
-    print(f"Running command: {git_command}")
-    subprocess.run(git_command, shell=True)
+    print(
+        f"[{COMMS_COLOR}]Running command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]"
+    )
+    result = subprocess.run(
+        git_command, shell=True, check=True, capture_output=True, text=True
+    )
+    print(f"[{COMMS_COLOR}]Output:[/{COMMS_COLOR}]")
+    if result.stdout:
+        print(result.stdout)
+    if result.stderr:
+        print(result.stderr)
+    exit(0)
+
+
+@app.command()
+def main(
+    instruction: str = typer.Argument(..., help="Human-readable git instruction."),
+    run: bool = typer.Option(False, help="Run generated git command automatically."),
+    explain: bool = typer.Option(
+        False, help="Explain the generated git command automatically."
+    ),
+):
+    generated_git_command = generate_git_command(instruction)
+    if explain:
+        explain_git_command(generated_git_command)
+    if run:
+        run_git_command(git_command=generated_git_command)
+    if not run and not explain:
+        action = typer.prompt("(E)xplain or e(X)ecute or (N)ew?")
+        if action == "E":
+            explain_git_command(generated_git_command)
+            action = typer.prompt("e(X)ecute? or (N)ew?")
+            if action == "X":
+                run_git_command(git_command=generated_git_command)
+            elif action == "N":
+                main(
+                    instruction=typer.prompt("Enter new instructions"),
+                    run=False,
+                    explain=False,
+                )
+        elif action == "X":
+            run_git_command(git_command=generated_git_command)
+        elif action == "N":
+            main(
+                instruction=typer.prompt("Enter new instructions"),
+                run=False,
+                explain=False,
+            )
 
 
 if __name__ == "__main__":
