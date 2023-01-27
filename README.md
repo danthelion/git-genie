@@ -14,12 +14,18 @@ pip install git-genie
 
 `❯ git-genie [OPTIONS] INSTRUCTION`
 
+For example:
+
+```bash
+❯ git-genie --explain "Who was the last person to modify the README.md file?"
+```
 Options:
- - --explain, -e: Explain the generated git command automatically.
- - --execute, -x: Execute the generated git command automatically.
- - --install-completion: Install completion for the current shell.
- - --show-completion: Show completion for the current shell, to copy it or customize the installation.
- - --help, -h: Show this message and exit.
+
+- `--explain`, `-e`: Explain the generated git command automatically.
+- `--execute`, `-x`: Execute the generated git command automatically.
+- `--install-completion`: Install completion for the current shell.
+- `--show-completion`: Show completion for the current shell, to copy it or customize the installation.
+- `--help`, `-h`: Show this message and exit.
 
 If no options are provided, the program will run in interactive mode.
 
@@ -38,6 +44,9 @@ export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 ### Interactive mode
+
+By default, the program will run in interactive mode, where it will ask you if you would like to explain the generated
+git command, execute it, or generate a new command.
 
 ```bash
 ~/git-genie ❯ git-genie "count how many times the README.md file was modified in the last week"
@@ -65,6 +74,8 @@ Output:
 
 #### Explain
 
+By using the `--explain` flag, the program will print the explanation of the generated git command.
+
 ```bash
 ~/git-genie ❯ git-genie "amend all previous commits with new email address" --explain
 
@@ -81,6 +92,9 @@ legacy code -> The message of the merge commit
 ```
 
 #### Execute
+
+By using the `--execute` flag, the program will execute the generated git command automatically without asking for
+confirmation.
 
 ```bash
 ~/git-genie ❯ git-genie "print last 5 commits logs, condensed" --execute
