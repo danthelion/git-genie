@@ -1,6 +1,8 @@
-# git-genie
+# git-genie 🧞
 
 Generate & explain git commands using plain english.
+
+![example](example.png)
 
 ## Installation
 
