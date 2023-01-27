@@ -31,7 +31,7 @@ GENERATE_GIT_COMMAND_EXAMPLES = [
 EXPLAIN_GIT_COMMAND_EXAMPLES = [
     {
         "command": 'git rebase -i HEAD~5 --autosquash -m "legacy code"',
-        "explanation": "git rebase[/bold red] -> Forward-port local commits to the updated upstream head\n"
+        "explanation": "git rebase -> Forward-port local commits to the updated upstream head\n"
         "-i, --interactive -> Make a list of the commits which are about to be rebased."
         "Let the user edit that list before rebasing.\n --autosquash ->"
         "Automatically move commits that begin with squash!/fixup! to the beginning"
@@ -55,7 +55,7 @@ EXPLAIN_GIT_COMMAND_EXAMPLES = [
         "test.json -> Only show lines that contain test.json\nwc -l -> Count the number of lines",
     },
     {
-        "command": " git log --graph --decorate --oneline --all -n 5",
+        "command": "git log --graph --decorate --oneline --all -n 5",
         "explanation": "git log -> Show commit logs\n--graph -> Show an ASCII graph of the branch and merge"
         "history beside the log output\n--decorate -> Show the ref names of any commits that are"
         "shown\n--oneline -> Show only the first line of each commit message\n--all ->"
@@ -96,6 +96,9 @@ def generate_git_command(instruction: str):
 
 def explain_git_command(git_command: str):
     explain_example_formatter_template = """
+    Give a detailed explanation of the following git command. Explain each part of the command separately, similar to
+    how it would be explained in a unix man page.
+
     Command: {command}
     Explanation: {explanation}\n
     """
@@ -110,7 +113,6 @@ def explain_git_command(git_command: str):
         prefix="Explain the followng git command.",
         suffix="Git command: {input}\nExplanation:",
         input_variables=["input"],
-        example_separator="\n\n",
     )
 
     git_command_translator = LLMChain(llm=LLM, prompt=explain_few_shot_prompt)
@@ -121,13 +123,11 @@ def explain_git_command(git_command: str):
     return explanation
 
 
-def run_git_command(git_command: str):
+def execute_git_command(git_command: str):
     print(
         f"[{COMMS_COLOR}]Running command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]"
     )
-    result = subprocess.run(
-        git_command, shell=True, check=True, capture_output=True, text=True
-    )
+    result = subprocess.run(git_command, shell=True, capture_output=True, text=True)
     print(f"[{COMMS_COLOR}]Output:[/{COMMS_COLOR}]")
     if result.stdout:
         print(result.stdout)
@@ -139,7 +139,9 @@ def run_git_command(git_command: str):
 @app.command()
 def main(
     instruction: str = typer.Argument(..., help="Human-readable git instruction."),
-    run: bool = typer.Option(False, help="Run generated git command automatically."),
+    execute: bool = typer.Option(
+        False, help="Execute generated git command automatically."
+    ),
     explain: bool = typer.Option(
         False, help="Explain the generated git command automatically."
     ),
@@ -147,27 +149,27 @@ def main(
     generated_git_command = generate_git_command(instruction)
     if explain:
         explain_git_command(generated_git_command)
-    if run:
-        run_git_command(git_command=generated_git_command)
-    if not run and not explain:
+    if execute:
+        execute_git_command(git_command=generated_git_command)
+    if not execute and not explain:
         action = typer.prompt("(E)xplain or e(X)ecute or (N)ew?")
         if action == "E":
             explain_git_command(generated_git_command)
-            action = typer.prompt("e(X)ecute? or (N)ew?")
+            action = typer.prompt("e(X)ecute or (N)ew?")
             if action == "X":
-                run_git_command(git_command=generated_git_command)
+                execute_git_command(git_command=generated_git_command)
             elif action == "N":
                 main(
                     instruction=typer.prompt("Enter new instructions"),
-                    run=False,
+                    execute=False,
                     explain=False,
                 )
         elif action == "X":
-            run_git_command(git_command=generated_git_command)
+            execute_git_command(git_command=generated_git_command)
         elif action == "N":
             main(
                 instruction=typer.prompt("Enter new instructions"),
-                run=False,
+                execute=False,
                 explain=False,
             )
 
