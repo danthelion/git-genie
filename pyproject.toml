@@ -2,7 +2,7 @@
 name = "git-genie"
 version = "0.1.0"
 description = ""
-authors = ["Daniel Palma <daniel.palma@brooklyndata.co>"]
+authors = ["Daniel Palma <danivgy@gmail.com>"]
 readme = "README.md"
 packages = [{include = "git_genie"}]
 
