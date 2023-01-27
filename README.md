@@ -21,6 +21,12 @@ Options:
 
 If no options are provided, the program will run in interactive mode.
 
+Optionally, you can add a "gg" alias to your shell's rc file (e.g. ~/.bashrc) to make the command shorter:
+
+```bash
+alias gg="git-genie"
+```
+
 ### Pre-requisites
 
 #### OpenAI API key
