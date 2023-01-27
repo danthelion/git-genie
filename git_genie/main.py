@@ -145,10 +145,13 @@ def execute_git_command(git_command: str):
 def main(
     instruction: str = typer.Argument(..., help="Human-readable git instruction."),
     execute: bool = typer.Option(
-        False, help="Execute generated git command automatically."
+        False, "--execute", "-x", help="Execute generated git command automatically."
     ),
     explain: bool = typer.Option(
-        False, help="Explain the generated git command automatically."
+        False,
+        "--explain",
+        "-e",
+        help="Explain the generated git command automatically.",
     ),
 ):
     generated_git_command = generate_git_command(instruction)

@@ -10,6 +10,17 @@ pip install git-genie
 
 ## Usage
 
+`❯ git-genie [OPTIONS] INSTRUCTION`
+
+Options:
+ - --explain, -e: Explain the generated git command automatically.
+ - --execute, -x: Execute the generated git command automatically.
+ - --install-completion: Install completion for the current shell.
+ - --show-completion: Show completion for the current shell, to copy it or customize the installation.
+ - --help, -h: Show this message and exit.
+
+If no options are provided, the program will run in interactive mode.
+
 ### Pre-requisites
 
 #### OpenAI API key
