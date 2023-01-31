@@ -2,6 +2,15 @@
 
 Generate & explain git commands using plain english.
 
+Generate commit message example:
+
+```bash
+❯ git status
+```
+
+Explain git commands using plain english. For example:
+
+
 ![example](example.png)
 
 ## Installation
@@ -42,6 +51,16 @@ alias gg="git-genie"
 ```shell
 export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
+### Generate commit messages
+
+Generating commit messages is done by using the `commit` command.
+
+```bash
+❯ git-genie commit
+```
+
+This method will create a concise message based on the changes staged for a commit.
+
 
 ### Interactive mode
 
