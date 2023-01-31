@@ -2,7 +2,11 @@ import subprocess
 
 import typer
 from langchain import FewShotPromptTemplate
-from langchain import PromptTemplate, OpenAI, LLMChain
+from langchain import OpenAI, LLMChain
+from langchain.chains.summarize import load_summarize_chain
+from langchain.docstore.document import Document
+from langchain.prompts import PromptTemplate
+from langchain.text_splitter import CharacterTextSplitter
 from rich import print
 
 LLM = OpenAI(temperature=0, model_name="text-davinci-003")
@@ -141,6 +145,51 @@ def execute_git_command(git_command: str):
     exit(0)
 
 
+def get_diff():
+    # Get diff of current state
+    get_diff_cmd = "git diff --staged"
+    result = subprocess.run(get_diff_cmd, shell=True, capture_output=True, text=True)
+    diff = result.stdout
+    return diff
+
+
+def generate_commit_message(diff: str) -> str:
+    text_splitter = CharacterTextSplitter()
+    texts = text_splitter.split_text(diff)
+    docs = [Document(page_content=t) for t in texts]
+    prompt_template = """
+    You are a version control system. Generate a commit message for the following changes. The commit message should be
+    a short description of the changes. The commit message should be written in the imperative mood, i.e. as if you were
+    giving a command. The first line should be no longer than 50 characters and should start with a capital letter. The
+    following lines should be no longer than 72 characters.
+
+    Be direct, try to eliminate filler words and phrases in these sentences (examples: though, maybe, I think, kind of).
+    Think like a journalist. Be concise. Be clear. Be consistent. Be professional. Be respectful.
+
+    Changes: {text}
+
+    Commit message:"""
+    summary_prompt_template = PromptTemplate(
+        template=prompt_template, input_variables=["text"]
+    )
+    chain = load_summarize_chain(
+        LLM, chain_type="stuff", prompt=summary_prompt_template
+    )
+    commit_message = chain.run(docs)
+    # Clean up commit message
+    commit_message = commit_message.strip()
+    print(f"[{COMMS_COLOR}]Generated commit message:[/{COMMS_COLOR}]{commit_message}")
+    return commit_message
+
+
+def generate_commit_command():
+    diff = get_diff()
+    commit_message = generate_commit_message(diff=diff)
+    commit_command = f"git commit -m '{commit_message}'"
+    print(f"[{COMMS_COLOR}]Generated commit command:[/{COMMS_COLOR}]{commit_command}")
+    return commit_command
+
+
 @app.command()
 def main(
     instruction: str = typer.Argument(..., help="Human-readable git instruction."),
@@ -154,7 +203,10 @@ def main(
         help="Explain the generated git command automatically.",
     ),
 ):
-    generated_git_command = generate_git_command(instruction)
+    if instruction == "commit":
+        generated_git_command = generate_commit_command()
+    else:
+        generated_git_command = generate_git_command(instruction)
     if explain:
         explain_git_command(generated_git_command)
     if execute:

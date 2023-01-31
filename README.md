@@ -2,6 +2,16 @@
 
 Generate & explain git commands using plain english.
 
+### Generate commit messages based on staged changes
+
+```shell
+❯ git-genie commit
+
+Generated command: git commit -m 'Update README with commit message example and instructions'
+```
+
+### Generate & Explain complex git commands using plain english
+
 ![example](example.png)
 
 ## Installation
@@ -19,6 +29,7 @@ For example:
 ```bash
 ❯ git-genie --explain "Who was the last person to modify the README.md file?"
 ```
+
 Options:
 
 - `--explain`, `-e`: Explain the generated git command automatically.
@@ -41,6 +52,36 @@ alias gg="git-genie"
 
 ```shell
 export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+### Generate commit messages
+
+Generating commit messages is done by using the `commit` command.
+This method will create a concise message based on the changes staged for a commit.
+
+```bash
+❯ git status
+
+Changes to be committed:
+  (use "git restore --staged <file>..." to unstage)
+        modified:   README.md
+```
+
+Let's generate a commit message for the changed README.md file:
+
+```bash
+❯ git-genie commit
+Generated commit command:git commit -m 'Update README with commit message example and instructions'
+(E)xplain or e(X)ecute or (N)ew?: X
+```
+
+By pressing `X`, the generated commit command will be executed automatically:
+
+```bash
+Running command: git commit -m 'Update README with commit message example and instructions'
+Output:
+[commit_gen 75d69ce] Update README with commit message example and instructions
+ 1 file changed, 19 insertions(+)
 ```
 
 ### Interactive mode
