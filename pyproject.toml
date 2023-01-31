@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "git-genie"
-version = "0.1.0"
+version = "0.2.0"
 description = ""
 authors = ["Daniel Palma <danivgy@gmail.com>"]
 readme = "README.md"
@@ -12,8 +12,9 @@ git-genie = "git_genie.main:app"
 [tool.poetry.dependencies]
 python = "^3.10"
 typer = {extras = ["all"], version = "^0.7.0"}
-langchain = "^0.0.71"
+langchain = "^0.0.75"
 openai = "^0.26.4"
+tiktoken = "^0.1.2"
 
 
 [tool.poetry.group.dev.dependencies]

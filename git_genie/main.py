@@ -154,9 +154,14 @@ def get_diff():
 
 
 def generate_commit_message(diff: str) -> str:
-    text_splitter = CharacterTextSplitter()
+    text_splitter = CharacterTextSplitter(separator="\n")
     texts = text_splitter.split_text(diff)
     docs = [Document(page_content=t) for t in texts]
+
+    # summarize changes first
+    summary_chain = load_summarize_chain(LLM, chain_type="map_reduce")
+    changes_summary = Document(page_content=summary_chain.run(docs))
+
     prompt_template = """
     You are a version control system. Generate a commit message for the following changes. The commit message should be
     a short description of the changes. The commit message should be written in the imperative mood, i.e. as if you were
@@ -175,7 +180,7 @@ def generate_commit_message(diff: str) -> str:
     chain = load_summarize_chain(
         LLM, chain_type="stuff", prompt=summary_prompt_template
     )
-    commit_message = chain.run(docs)
+    commit_message = chain.run([changes_summary])
     # Clean up commit message
     commit_message = commit_message.strip()
     print(f"[{COMMS_COLOR}]Generated commit message:[/{COMMS_COLOR}]{commit_message}")
