@@ -203,7 +203,7 @@ def generate_commit_message(diff: str) -> str:
     chain = load_summarize_chain(LLM, chain_type="stuff", prompt=summary_prompt_template, verbose=DEBUG_MODE)
     commit_message = chain.run([changes_summary])
     # Clean up commit message
-    commit_message = f"🧞: {commit_message.strip()}"
+    commit_message = f"\ngit-genie 🧞: {commit_message.strip()}"
     quiet_print(f"[{COMMS_COLOR}]Generated commit message:[/{COMMS_COLOR}]{commit_message}")
     return commit_message
 

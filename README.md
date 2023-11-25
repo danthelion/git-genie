@@ -27,7 +27,7 @@ repos:
     rev: "v0.1.2"
     hooks:
       - id: git-genie
-        args: [ '--mode=append' ]  # or --mode=replace
+        args: [ '--mode=append' ]  # or --mode=replace to replace the original commit message
 ```
 
 #### Install pre-commit hooks
@@ -43,7 +43,9 @@ pre-commit install --hook-type commit-msg
 
 git-genie................................................................Passed
 
-[main 0dc8c69] git-genie please help me write a commit message 🧞: Update .pre-commit-config.yaml for git-genie v0.1.1 Add --fix and --exit-non-zero-on-fix for ruff hooks.
+[main 0dc8c69] git-genie please help me write a commit message
+
+git-genie 🧞: Update .pre-commit-config.yaml for git-genie v0.1.1 Add --fix and --exit-non-zero-on-fix for ruff hooks.
 
  1 file changed, 2 insertions(+), 1 deletion(-)
 ```
@@ -57,9 +59,13 @@ The results will be similar to the following:
 ~/Personal/git-genie-pre-commit main* ⇡ ❯ git commit -m "asdsakdfnlsknflag"                                                                                                                 3.10.7 repobuddy 14:26:04
 
 git-genie................................................................Passed
-[main 9bf1d83] 🧞: Update pre-commit hook to use "--mode=replace" and change port mapping to "5435:5435".
- 2 files changed, 2 insertions(+), 2 deletions(-)
+
+[main 9bf1d83] git-genie 🧞: Update pre-commit hook to use "--mode=replace" and change port mapping to "5435:5435".
+
+2 files changed, 2 insertions(+), 2 deletions(-)
 ```
+
+Notice the original commit message is not included in the commit message.
 
 ### Generate & Explain complex git commands using plain english
 
