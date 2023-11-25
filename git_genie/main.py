@@ -185,7 +185,7 @@ def generate_commit_message(diff: str) -> str:
 
     Commit message:"""
     summary_prompt_template = PromptTemplate(template=prompt_template, input_variables=["text"])
-    chain = load_summarize_chain(LLM, chain_type="stuff", prompt=summary_prompt_template)
+    chain = load_summarize_chain(LLM, chain_type="stuff", prompt=summary_prompt_template, verbose=debug_mode)
     commit_message = chain.run([changes_summary])
     # Clean up commit message
     commit_message = f"🧞: {commit_message.strip()}"
@@ -211,7 +211,11 @@ def main(
         "-e",
         help="Explain the generated git command automatically.",
     ),
+    debug: bool = typer.Option(False, "--debug", "-d", help="Debug mode."),
 ):
+    if debug:
+        global debug_mode
+        debug_mode = True
     if instruction == "commit":
         generated_git_command = generate_commit_command()
     else:
