@@ -16,18 +16,24 @@ Generated command: git commit -m 'Update README with commit message example and 
 
 ```shell
 pip install pre-commit
-pre-commit install --hook-type commit-msg
 ```
 
 #### Add pre-commit hook
 
 ```yaml
+# .pre-commit-config.yaml
 repos:
   - repo: https://github.com/danthelion/git-genie
     rev: "v0.1.2"
     hooks:
       - id: git-genie
         args: [ '--mode=append' ]  # or --mode=replace
+```
+
+#### Install pre-commit hooks
+
+```shell
+pre-commit install --hook-type commit-msg
 ```
 
 #### Watch the magic happen
