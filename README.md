@@ -37,6 +37,7 @@ Options:
 - `--install-completion`: Install completion for the current shell.
 - `--show-completion`: Show completion for the current shell, to copy it or customize the installation.
 - `--help`, `-h`: Show this message and exit.
+- `--debug`: Enable debug mode. This will pass verbose=True to LangChain, which will print the output of each step.
 
 If no options are provided, the program will run in interactive mode.
 
@@ -150,4 +151,28 @@ f76f041 CLI interface
 ae8abbd Add pycache to gitignore
 67169fd rich print
 3bac238 Refactor
+```
+
+## Development setup
+
+### Poetry
+
+This project uses [Poetry](https://python-poetry.org/) for dependency management. To install the dependencies, run:
+
+```bash
+poetry install
+```
+
+### Execute the CLI
+
+```bash
+poetry run python git_genie/main.py "Who was the last person to modify the README.md file?"
+
+Generated git command: git log -1 --pretty=format:"%an" -- README.md
+
+(E)xplain or e(X)ecute or (N)ew?: X
+
+Running command: git log -1 --pretty=format:"%an" -- README.md
+Output:
+Daniel Palma
 ```

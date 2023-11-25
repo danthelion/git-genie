@@ -9,6 +9,8 @@ from langchain.prompts import PromptTemplate, FewShotPromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 from rich import print
 
+DEBUG_MODE = False
+
 LLM = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-1106")
 
 COMMS_COLOR = "yellow"
@@ -185,7 +187,7 @@ def generate_commit_message(diff: str) -> str:
 
     Commit message:"""
     summary_prompt_template = PromptTemplate(template=prompt_template, input_variables=["text"])
-    chain = load_summarize_chain(LLM, chain_type="stuff", prompt=summary_prompt_template, verbose=debug_mode)
+    chain = load_summarize_chain(LLM, chain_type="stuff", prompt=summary_prompt_template, verbose=DEBUG_MODE)
     commit_message = chain.run([changes_summary])
     # Clean up commit message
     commit_message = f"🧞: {commit_message.strip()}"
@@ -214,8 +216,7 @@ def main(
     debug: bool = typer.Option(False, "--debug", "-d", help="Debug mode."),
 ):
     if debug:
-        global debug_mode
-        debug_mode = True
+        DEBUG_MODE = True  # noqa: F841
     if instruction == "commit":
         generated_git_command = generate_commit_command()
     else:
