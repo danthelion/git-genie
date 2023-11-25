@@ -1,5 +1,5 @@
 - id: git-genie
   name: git-genie
   description: A pre-commit hook to help you write better commit messages.
-  entry: commit -j
+  entry: git-genie commit -j
   language: python
