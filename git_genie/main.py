@@ -188,6 +188,8 @@ def generate_commit_message(diff: str) -> str:
     giving a command. The first line should be no longer than 50 characters and should start with a capital letter. The
     following lines should be no longer than 72 characters.
 
+    Only focus on the changed lines. Do not include lines that were not changed.
+
     Be direct, try to eliminate filler words and phrases in these sentences (examples: though, maybe, I think, kind of).
     Think like a journalist. Be concise. Be clear. Be consistent. Be professional. Be respectful.
 
