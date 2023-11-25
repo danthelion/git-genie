@@ -8,6 +8,7 @@ packages = [{include = "git_genie"}]
 
 [tool.poetry.scripts]
 git-genie = "git_genie.main:app"
+git-genie-pre-commit = "git_genie.main:pre_commit"
 
 [tool.poetry.dependencies]
 python = "3.11"

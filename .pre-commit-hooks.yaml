@@ -1,7 +1,7 @@
 - id: git-genie
   name: git-genie
   description: A pre-commit hook to help you write better commit messages.
-  entry: git-genie pre-commit -f
+  entry: git-genie-pre-commit
   language: python
   pass_filenames: true
   stages: [commit-msg]
