@@ -305,9 +305,7 @@ def pre_commit_hook(argv=None):
     parser.add_argument("filenames", nargs="+")
     parser.add_argument("--mode", nargs="?", const=append, default=append, choices=[append, replace])
     args = parser.parse_args(argv)
-    regex = args.regex or r"[A-Z]+-\d+"  # noqa
-    format_string = args.format or "{ticket} {commit_msg}"  # noqa
-    update_commit_message(filename=".git/COMMIT_EDITMSG", mode="append")
+    update_commit_message(args.filenames[0], mode="append")
 
 
 if __name__ == "__main__":
