@@ -24,7 +24,7 @@ pip install pre-commit
 # .pre-commit-config.yaml
 repos:
   - repo: https://github.com/danthelion/git-genie
-    rev: "v0.1.2"
+    rev: "v0.1.3"
     hooks:
       - id: git-genie
         args: [ '--mode=append' ]  # or --mode=replace to replace the original commit message
