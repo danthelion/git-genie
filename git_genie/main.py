@@ -1,15 +1,15 @@
 import subprocess
 
 import typer
-from langchain import FewShotPromptTemplate
-from langchain import OpenAI, LLMChain
+from langchain.chains import LLMChain
+from langchain.chat_models import ChatOpenAI
 from langchain.chains.summarize import load_summarize_chain
 from langchain.docstore.document import Document
-from langchain.prompts import PromptTemplate
+from langchain.prompts import PromptTemplate, FewShotPromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 from rich import print
 
-LLM = OpenAI(temperature=0, model_name="text-davinci-003")
+LLM = ChatOpenAI(temperature=0, model_name="gpt-4")
 
 COMMS_COLOR = "yellow"
 COMMAND_COLOR = "bold red"
@@ -97,9 +97,7 @@ def generate_git_command(instruction: str):
 
     git_command_translator = LLMChain(llm=LLM, prompt=few_shot_prompt)
     git_command = git_command_translator(instruction)["text"]
-    print(
-        f"[{COMMS_COLOR}]Generated git command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]"
-    )
+    print(f"[{COMMS_COLOR}]Generated git command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]")
     return git_command
 
 
@@ -126,16 +124,12 @@ def explain_git_command(git_command: str):
 
     git_command_translator = LLMChain(llm=LLM, prompt=explain_few_shot_prompt)
     explanation = git_command_translator(git_command)["text"]
-    print(
-        f"[{COMMS_COLOR}]Explanation[/{COMMS_COLOR}]\n[{EXPLANATION_COLOR}]{explanation}[/{EXPLANATION_COLOR}]"
-    )
+    print(f"[{COMMS_COLOR}]Explanation[/{COMMS_COLOR}]\n[{EXPLANATION_COLOR}]{explanation}[/{EXPLANATION_COLOR}]")
     return explanation
 
 
 def execute_git_command(git_command: str):
-    print(
-        f"[{COMMS_COLOR}]Running command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]"
-    )
+    print(f"[{COMMS_COLOR}]Running command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]")
     result = subprocess.run(git_command, shell=True, capture_output=True, text=True)
     print(f"[{COMMS_COLOR}]Output:[/{COMMS_COLOR}]")
     if result.stdout:
@@ -174,12 +168,8 @@ def generate_commit_message(diff: str) -> str:
     Changes: {text}
 
     Commit message:"""
-    summary_prompt_template = PromptTemplate(
-        template=prompt_template, input_variables=["text"]
-    )
-    chain = load_summarize_chain(
-        LLM, chain_type="stuff", prompt=summary_prompt_template
-    )
+    summary_prompt_template = PromptTemplate(template=prompt_template, input_variables=["text"])
+    chain = load_summarize_chain(LLM, chain_type="stuff", prompt=summary_prompt_template)
     commit_message = chain.run([changes_summary])
     # Clean up commit message
     commit_message = commit_message.strip()
@@ -198,9 +188,7 @@ def generate_commit_command():
 @app.command()
 def main(
     instruction: str = typer.Argument(..., help="Human-readable git instruction."),
-    execute: bool = typer.Option(
-        False, "--execute", "-x", help="Execute generated git command automatically."
-    ),
+    execute: bool = typer.Option(False, "--execute", "-x", help="Execute generated git command automatically."),
     explain: bool = typer.Option(
         False,
         "--explain",
