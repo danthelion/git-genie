@@ -1,4 +1,3 @@
-import argparse
 import io
 import subprocess
 import sys
@@ -229,7 +228,12 @@ def main(
     just_print_commit_message: bool = typer.Option(
         False, "--just-print-commit-message", "-j", help="Just print the generated commit message."
     ),
+    pre_commit: bool = typer.Option(False, "--pre-commit", "-p", help="Pre-commit hook mode."),
+    pre_commit_filename: str = typer.Option("", "--pre-commit-filename", "-f", help="Pre-commit hook filename."),
 ):
+    if pre_commit:
+        pre_commit_hook(pre_commit_filename=pre_commit_filename)
+        exit(0)
     if debug:
         global DEBUG_MODE
         DEBUG_MODE = True  # noqa: F841
@@ -300,12 +304,8 @@ append = "append"
 replace = "replace"
 
 
-def pre_commit_hook(argv=None):
-    parser = argparse.ArgumentParser()
-    parser.add_argument("filenames", nargs="+")
-    parser.add_argument("--mode", nargs="?", const=append, default=append, choices=[append, replace])
-    args = parser.parse_args(argv)
-    update_commit_message(args.filenames[0], mode="append")
+def pre_commit_hook(pre_commit_filename: str = ""):
+    update_commit_message(pre_commit_filename, mode="append")
 
 
 if __name__ == "__main__":
