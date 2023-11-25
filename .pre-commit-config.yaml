@@ -11,3 +11,8 @@ repos:
       - id: ruff
         args: [ --fix ]
       - id: ruff-format
+  - repo: https://github.com/danthelion/git-genie
+    rev: "v0.1.3"
+    hooks:
+      - id: git-genie
+        args: [ --mode=replace ]
