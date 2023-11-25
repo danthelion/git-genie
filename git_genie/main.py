@@ -9,7 +9,7 @@ from langchain.prompts import PromptTemplate, FewShotPromptTemplate
 from langchain.text_splitter import CharacterTextSplitter
 from rich import print
 
-LLM = ChatOpenAI(temperature=0, model_name="gpt-4")
+LLM = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-1106")
 
 COMMS_COLOR = "yellow"
 COMMAND_COLOR = "bold red"
@@ -29,6 +29,18 @@ GENERATE_GIT_COMMAND_EXAMPLES = [
     {
         "instruction": "Create a new branch called 'feature' and switch to it",
         "command": "git checkout -b feature",
+    },
+    {
+        "instruction": "Merge the 'feature' branch into the 'master' branch",
+        "command": "git checkout master && git merge feature",
+    },
+    {
+        "instruction": "Merge the 'feature' branch into the 'master' branch, but don't create a merge commit",
+        "command": "git checkout master && git merge --no-ff feature",
+    },
+    {
+        "instruction": "Rebase the last 5 commits onto the 'master' branch, but don't create a merge commit",
+        "command": "git rebase -i HEAD~5 --autosquash -m 'legacy code'",
     },
 ]
 
@@ -144,6 +156,10 @@ def get_diff():
     get_diff_cmd = "git diff --staged"
     result = subprocess.run(get_diff_cmd, shell=True, capture_output=True, text=True)
     diff = result.stdout
+    # check if there are any changes
+    if not diff:
+        print(f"[{COMMS_COLOR}]No changes detected. Stage files with `git add` first.[/{COMMS_COLOR}]")
+        exit(0)
     return diff
 
 
@@ -228,4 +244,4 @@ def main(
 
 
 if __name__ == "__main__":
-    typer.run(generate_git_command)
+    app()
