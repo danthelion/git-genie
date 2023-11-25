@@ -10,6 +10,37 @@ Generate & explain git commands using plain english.
 Generated command: git commit -m 'Update README with commit message example and instructions'
 ```
 
+### Generate commit messages as a pre-commit hook
+
+#### Install pre-commit
+
+```shell
+pip install pre-commit
+```
+
+#### Add pre-commit hook
+
+```yaml
+repos:
+  - repo: https://github.com/danthelion/git-genie
+    rev: "v0.3.0"
+    hooks:
+      - id: git-genie
+        args: [ '--mode=append' ]  # or --mode=replace
+```
+
+#### Watch the magic happen
+
+```shell
+~/Personal/git-genie-pre-commit main* ❯ git add . && git commit -m "test"
+
+git-genie................................................................Passed
+
+[main 0dc8c69] test 🧞: Specify specific revision and add '--mode=replace' argument to git-genie hook.
+
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+```
+
 ### Generate & Explain complex git commands using plain english
 
 ![example](example.png)

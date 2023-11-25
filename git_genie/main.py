@@ -1,6 +1,5 @@
 import argparse
 import subprocess
-import sys
 
 import typer
 from langchain.chains import LLMChain
@@ -274,7 +273,7 @@ def main(
             )
 
 
-def update_commit_message(filename, mode):
+def update_commit_message(filename: str, mode: str = "append"):
     with open(filename, "r+") as fd:
         contents = fd.readlines()
         commit_msg = contents[0].rstrip("\r\n")
@@ -304,8 +303,8 @@ def pre_commit(argv=None):
     parser.add_argument("filenames", nargs="+")
     parser.add_argument("--mode", nargs="?", const=append, default=append, choices=[append, replace])
     args = parser.parse_args(argv)
-    update_commit_message(args.filenames[0], mode="append")
+    update_commit_message(args.filenames[0], mode=args.mode)
 
 
 if __name__ == "__main__":
-    sys.exit(pre_commit())
+    app()
