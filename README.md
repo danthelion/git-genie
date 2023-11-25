@@ -2,23 +2,24 @@
 
 Generate & explain git commands using plain english.
 
-### Generate commit messages based on staged changes
+## Generate commit messages based on staged changes
 
 ```shell
+<do your work>
 ❯ git-genie commit
 
 Generated command: git commit -m 'Update README with commit message example and instructions'
 ```
 
-### Generate commit messages as a pre-commit hook
+## Generate commit messages as a pre-commit hook
 
-#### Install pre-commit & git-genie hooks
+### Install pre-commit & git-genie hooks
 
 ```shell
 pip install pre-commit
 ```
 
-#### Add pre-commit hook
+### Add pre-commit hook
 
 ```yaml
 # .pre-commit-config.yaml
@@ -30,15 +31,16 @@ repos:
         args: [ '--mode=append' ]  # or --mode=replace to replace the original commit message
 ```
 
-#### Install pre-commit hooks
+### Install pre-commit hooks
 
 ```shell
 pre-commit install --hook-type commit-msg
 ```
 
-#### Watch the magic happen
+### Watch the magic happen
 
 ```shell
+<do your work>
 ~/Personal/git-genie-pre-commit main* ❯ git add . && git commit -m "git-genie please help me write a commit message"
 
 git-genie................................................................Passed
@@ -56,6 +58,7 @@ If you with to replace the original message, use `--mode=replace` instead of `--
 The results will be similar to the following:
 
 ```shell
+<do your work>
 ~/Personal/git-genie-pre-commit main* ⇡ ❯ git commit -m "asdsakdfnlsknflag"                                                                                                                 3.10.7 repobuddy 14:26:04
 
 git-genie................................................................Passed
@@ -67,17 +70,19 @@ git-genie................................................................Passed
 
 Notice the original commit message is not included in the commit message.
 
-### Generate & Explain complex git commands using plain english
+## Generate & Explain complex git commands using plain english
 
 ![example](example.png)
 
-## Installation
+### Standalone CLI Installation
+
+You can install the CLI as a standalone program using pip:
 
 ```bash
 pip install git-genie
 ```
 
-## Usage
+### Usage
 
 `❯ git-genie [OPTIONS] INSTRUCTION`
 
@@ -104,13 +109,16 @@ Optionally, you can add a "gg" alias to your shell's rc file (e.g. ~/.bashrc) to
 alias gg="git-genie"
 ```
 
-### Pre-requisites
+## Pre-requisites
 
-#### OpenAI API key
+### OpenAI API key
 
 ```shell
 export OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
+## Usage
+
+Standalone CLI usage examples
 
 ### Generate commit messages
 
