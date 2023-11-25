@@ -1,4 +1,5 @@
 import argparse
+import os
 import subprocess
 
 import typer
@@ -301,6 +302,9 @@ replace = "replace"
 
 
 def pre_commit(argv=None):
+    # Check for OPENAI_API_KEY environment variable
+    if "OPENAI_API_KEY" not in os.environ:
+        raise ValueError("OPENAI_API_KEY environment variable not set.")
     parser = argparse.ArgumentParser()
     parser.add_argument("filenames", nargs="+")
     parser.add_argument("--mode", nargs="?", const=append, default=append, choices=[append, replace])
