@@ -10,15 +10,16 @@ packages = [{include = "git_genie"}]
 git-genie = "git_genie.main:app"
 
 [tool.poetry.dependencies]
-python = "^3.10"
-typer = {extras = ["all"], version = "^0.7.0"}
-langchain = "^0.0.75"
-openai = "^0.26.4"
-tiktoken = "^0.1.2"
+python = "3.11"
+typer = {extras = ["all"], version = "0.9.0"}
+langchain = "0.0.340"
+openai = "1.3.5"
+tiktoken = "0.5.1"
+python-dotenv = "1.0.0"
 
 
 [tool.poetry.group.dev.dependencies]
-pre-commit = "^3.0.1"
+pre-commit = "3.0.1"
 
 [build-system]
 requires = ["poetry-core"]

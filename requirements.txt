@@ -1,5 +1,0 @@
-langchain==0.0.70
-openai==0.26.4
-pre-commit==3.0.1
-python-dotenv==0.21.1
-typer==0.7.0
