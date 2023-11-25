@@ -1,4 +1,7 @@
+import argparse
+import io
 import subprocess
+import sys
 
 import typer
 from langchain.chains import LLMChain
@@ -272,5 +275,40 @@ def main(
             )
 
 
+def update_commit_message(filename, mode):
+    with io.open(filename, "r+") as fd:
+        contents = fd.readlines()
+        commit_msg = contents[0].rstrip("\r\n")
+
+        diff = get_diff()
+        gpt_commit_message = generate_commit_message(diff=diff)
+
+        if mode == "append":
+            new_commit_msg = f"{commit_msg}\n{gpt_commit_message}"
+        elif mode == "replace":
+            new_commit_msg = gpt_commit_message
+        else:
+            raise ValueError(f"Invalid mode: {mode}")
+
+        contents[0] = f"{new_commit_msg}\n"
+        fd.seek(0)
+        fd.writelines(contents)
+        fd.truncate()
+
+
+append = "append"
+replace = "replace"
+
+
+def pre_commit_hook(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filenames", nargs="+")
+    parser.add_argument("--mode", nargs="?", const=append, default=append, choices=[append, replace])
+    args = parser.parse_args(argv)
+    regex = args.regex or r"[A-Z]+-\d+"  # noqa
+    format_string = args.format or "{ticket} {commit_msg}"  # noqa
+    update_commit_message(filename=".git/COMMIT_EDITMSG", mode="append")
+
+
 if __name__ == "__main__":
-    app()
+    sys.exit(pre_commit_hook())

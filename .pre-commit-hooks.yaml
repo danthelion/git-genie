@@ -3,3 +3,5 @@
   description: A pre-commit hook to help you write better commit messages.
   entry: git-genie commit -j
   language: python
+  pass_filenames: false
+  stages: [commit-msg]
