@@ -10,6 +10,7 @@ from langchain.text_splitter import CharacterTextSplitter
 from rich import print
 
 DEBUG_MODE = False
+QUIET_MODE = False
 
 LLM = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo-1106")
 
@@ -85,6 +86,11 @@ EXPLAIN_GIT_COMMAND_EXAMPLES = [
 app = typer.Typer()
 
 
+def quiet_print(text: str):
+    if not QUIET_MODE:
+        print(text)
+
+
 def generate_git_command(instruction: str):
     example_formatter_template = """
     You are an interpreter for the command line version control tool git. Translate the following human-readable
@@ -111,7 +117,9 @@ def generate_git_command(instruction: str):
 
     git_command_translator = LLMChain(llm=LLM, prompt=few_shot_prompt)
     git_command = git_command_translator(instruction)["text"]
-    print(f"[{COMMS_COLOR}]Generated git command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]")
+    quiet_print(
+        f"[{COMMS_COLOR}]Generated git command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]"
+    )
     return git_command
 
 
@@ -138,14 +146,14 @@ def explain_git_command(git_command: str):
 
     git_command_translator = LLMChain(llm=LLM, prompt=explain_few_shot_prompt)
     explanation = git_command_translator(git_command)["text"]
-    print(f"[{COMMS_COLOR}]Explanation[/{COMMS_COLOR}]\n[{EXPLANATION_COLOR}]{explanation}[/{EXPLANATION_COLOR}]")
+    quiet_print(f"[{COMMS_COLOR}]Explanation[/{COMMS_COLOR}]\n[{EXPLANATION_COLOR}]{explanation}[/{EXPLANATION_COLOR}]")
     return explanation
 
 
 def execute_git_command(git_command: str):
-    print(f"[{COMMS_COLOR}]Running command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]")
+    quiet_print(f"[{COMMS_COLOR}]Running command:[/{COMMS_COLOR}] [{COMMAND_COLOR}]{git_command}[/{COMMAND_COLOR}]")
     result = subprocess.run(git_command, shell=True, capture_output=True, text=True)
-    print(f"[{COMMS_COLOR}]Output:[/{COMMS_COLOR}]")
+    quiet_print(f"[{COMMS_COLOR}]Output:[/{COMMS_COLOR}]")
     if result.stdout:
         typer.echo(result.stdout)
     if result.stderr:
@@ -160,7 +168,7 @@ def get_diff():
     diff = result.stdout
     # check if there are any changes
     if not diff:
-        print(f"[{COMMS_COLOR}]No changes detected. Stage files with `git add` first.[/{COMMS_COLOR}]")
+        quiet_print(f"[{COMMS_COLOR}]No changes detected. Stage files with `git add` first.[/{COMMS_COLOR}]")
         exit(0)
     return diff
 
@@ -171,7 +179,7 @@ def generate_commit_message(diff: str) -> str:
     docs = [Document(page_content=t) for t in texts]
 
     # summarize changes first
-    summary_chain = load_summarize_chain(LLM, chain_type="map_reduce")
+    summary_chain = load_summarize_chain(LLM, chain_type="stuff")
     changes_summary = Document(page_content=summary_chain.run(docs))
 
     prompt_template = """
@@ -191,15 +199,13 @@ def generate_commit_message(diff: str) -> str:
     commit_message = chain.run([changes_summary])
     # Clean up commit message
     commit_message = f"🧞: {commit_message.strip()}"
-    print(f"[{COMMS_COLOR}]Generated commit message:[/{COMMS_COLOR}]{commit_message}")
+    quiet_print(f"[{COMMS_COLOR}]Generated commit message:[/{COMMS_COLOR}]{commit_message}")
     return commit_message
 
 
-def generate_commit_command():
-    diff = get_diff()
-    commit_message = generate_commit_message(diff=diff)
+def generate_commit_command(commit_message: str = None):
     commit_command = f"git commit -m '{commit_message}'"
-    print(f"[{COMMS_COLOR}]Generated commit command:[/{COMMS_COLOR}]{commit_command}")
+    quiet_print(f"[{COMMS_COLOR}]Generated commit command:[/{COMMS_COLOR}]{commit_command}")
     return commit_command
 
 
@@ -214,13 +220,29 @@ def main(
         help="Explain the generated git command automatically.",
     ),
     debug: bool = typer.Option(False, "--debug", "-d", help="Debug mode."),
+    quiet: bool = typer.Option(False, "--quiet", "-q", help="Quiet mode. Just print the generated git command."),
+    just_print_commit_message: bool = typer.Option(
+        False, "--just-print-commit-message", "-j", help="Just print the generated commit message."
+    ),
 ):
     if debug:
+        global DEBUG_MODE
         DEBUG_MODE = True  # noqa: F841
+    if quiet or just_print_commit_message:
+        global QUIET_MODE
+        QUIET_MODE = True  # noqa: F841
     if instruction == "commit":
-        generated_git_command = generate_commit_command()
+        diff = get_diff()
+        commit_message = generate_commit_message(diff=diff)
+        if just_print_commit_message:
+            print(commit_message)
+            exit(0)
+        generated_git_command = generate_commit_command(commit_message=commit_message)
     else:
         generated_git_command = generate_git_command(instruction)
+    if quiet:
+        print(generated_git_command)
+        exit(0)
     if explain:
         explain_git_command(generated_git_command)
     if execute:
