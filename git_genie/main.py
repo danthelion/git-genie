@@ -1,4 +1,4 @@
-import io
+import argparse
 import subprocess
 import sys
 
@@ -275,7 +275,7 @@ def main(
 
 
 def update_commit_message(filename, mode):
-    with io.open(filename, "r+") as fd:
+    with open(filename, "r+") as fd:
         contents = fd.readlines()
         commit_msg = contents[0].rstrip("\r\n")
 
@@ -299,8 +299,12 @@ append = "append"
 replace = "replace"
 
 
-def pre_commit(pre_commit_filename: str = ""):
-    update_commit_message(pre_commit_filename, mode="append")
+def pre_commit(argv=None):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("filenames", nargs="+")
+    parser.add_argument("--mode", nargs="?", const=append, default=append, choices=[append, replace])
+    args = parser.parse_args(argv)
+    update_commit_message(args.filenames[0], mode="append")
 
 
 if __name__ == "__main__":
