@@ -24,7 +24,7 @@ pre-commit install --hook-type commit-msg
 ```yaml
 repos:
   - repo: https://github.com/danthelion/git-genie
-    rev: "v0.3.0"
+    rev: "v0.1.2"
     hooks:
       - id: git-genie
         args: [ '--mode=append' ]  # or --mode=replace
